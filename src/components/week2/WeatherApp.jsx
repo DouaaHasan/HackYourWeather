@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import SearchBar from '../week2/SearchBar';
 import City from '../week1/City';
-import dotenv from 'dotenv';
-dotenv.config();
 
 const WeatherApp = () => {
   // object to save the fetched city weather data
