@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import SearchBar from '../week2/SearchBar';
 import City from '../week1/City';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const WeatherApp = () => {
   // object to save the fetched city weather data
@@ -22,7 +24,7 @@ const WeatherApp = () => {
   const getCityWeatherData = async () => {
     try {
       const fetchedData = await fetch(
-        `https:api.openweathermap.org/data/2.5/weather?q=${cityNameInput}&appid=${process.env.REACT_APP_OPENWEATHERMAP_API_KEY}`,
+        `https://api.openweathermap.org/data/2.5/weather?q=${cityNameInput}&appid=${process.env.REACT_APP_OPENWEATHERMAP_API_KEY}`,
       );
       const jsonData = await fetchedData.json();
       await setCityWeatherData(jsonData);
