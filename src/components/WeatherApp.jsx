@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
-import SearchBar from '../week2/SearchBar';
-import City from '../week1/City';
-import dotenv from 'dotenv';
-dotenv.config();
+import SearchBar from './SearchBar';
+import City from './City';
 
 const WeatherApp = () => {
-  // object to save the fetched city weather data
+  // states
   const [cityWeatherData, setCityWeatherData] = useState({});
-
-  // string to save the city name input to use it dynamically to fetch the weather data
   const [cityNameInput, setCityNameInput] = useState('');
-
-  // boolean to toggle the state of the alert to show it if needed
   const [alertStatus, toggleAlertStatus] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+  const [searchedCitiesList, setSearchedCitiesList] = useState([]);
 
   // function to set the city name state
   const inputOnChange = e => {
@@ -28,9 +24,12 @@ const WeatherApp = () => {
       );
       const jsonData = await fetchedData.json();
       await setCityWeatherData(jsonData);
+      if (jsonData.cod === 200) await setSearchedCitiesList([jsonData, ...searchedCitiesList]);
+      await setLoading(false);
     } catch (error) {
       console.log(error);
     }
+    await setLoading(false);
   };
 
   // function to set the alert status
@@ -38,9 +37,9 @@ const WeatherApp = () => {
 
   // function to submit the input and fetch the data
   const clickSearchBtn = e => {
-    // prevent the auto refresh & fetch the data by calling the fetch function
     if (cityNameInput) {
       e.preventDefault();
+      setLoading(true);
       getCityWeatherData();
     }
 
@@ -53,6 +52,14 @@ const WeatherApp = () => {
     setCityNameInput('');
   };
 
+  // delete a city box
+  const deleteCityWeather = id => {
+    setSearchedCitiesList(searchedCitiesList.filter(cityInfo => cityInfo.id !== id));
+  };
+
+  // button disabling function as per the length of the input
+  const validInputLength = () => (cityNameInput.length < 1 ? true : false);
+
   return (
     <div style={{ textAlign: 'center' }}>
       <h1>Weather</h1>
@@ -60,15 +67,22 @@ const WeatherApp = () => {
         clickSearchBtn={clickSearchBtn}
         inputOnChange={inputOnChange}
         inputValue={cityNameInput}
+        validInputLength={validInputLength}
       />
 
-      {!cityWeatherData.name && alertStatus && (
-        <h1 style={errorBox}>
-          Kindly fill the input field with a city name in order to get its current weather
-          information!
-        </h1>
+      {!cityWeatherData.name && alertStatus && !isLoading && (
+        <h1 style={errorBox}>Please enter a valid city name!</h1>
       )}
-      {cityWeatherData.name && <City cityWeatherData={cityWeatherData} />}
+
+      {isLoading ? (
+        <h1>Loading...</h1>
+      ) : (
+        <div>
+          {searchedCitiesList.map((city, index) => (
+            <City key={index} city={city} deleteCityWeather={deleteCityWeather} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -77,7 +91,6 @@ const errorBox = {
   width: '500px',
   margin: 'auto',
   background: '#eee',
-  border: '5px orange solid',
   color: 'red',
   padding: '3%',
   fontFamily: 'arial',
