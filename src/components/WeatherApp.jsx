@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import SearchBar from './SearchBar';
 import City from './City';
 
-const WeatherApp = () => {
+function WeatherApp() {
   // states
   const [cityWeatherData, setCityWeatherData] = useState({});
   const [cityNameInput, setCityNameInput] = useState('');
@@ -20,7 +20,7 @@ const WeatherApp = () => {
   const getCityWeatherData = async () => {
     try {
       const fetchedData = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${cityNameInput}&appid=${process.env.REACT_APP_OPENWEATHERMAP_API_KEY}`,
+        `https://api.openweathermap.org/data/2.5/weather?q=${cityNameInput}&appid=${process.env.REACT_APP_OPENWEATHERMAP_API_KEY}&units=metric`,
       );
       const jsonData = await fetchedData.json();
       await setCityWeatherData(jsonData);
@@ -61,8 +61,9 @@ const WeatherApp = () => {
   const validInputLength = () => (cityNameInput.length < 1 ? true : false);
 
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div style={searchBarStyle}>
       <h1>Weather</h1>
+
       <SearchBar
         clickSearchBtn={clickSearchBtn}
         inputOnChange={inputOnChange}
@@ -78,14 +79,16 @@ const WeatherApp = () => {
         <h1>Loading...</h1>
       ) : (
         <div>
-          {searchedCitiesList.map((city, index) => (
-            <City key={index} city={city} deleteCityWeather={deleteCityWeather} />
+          {searchedCitiesList.map(city => (
+            <City key={city.id} city={city} deleteCityWeather={deleteCityWeather} />
           ))}
         </div>
       )}
     </div>
   );
-};
+}
+
+const searchBarStyle = { textAlign: 'center' };
 
 const errorBox = {
   width: '500px',
